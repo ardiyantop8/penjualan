@@ -3,19 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3123",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3123",
     "lint": "next lint"
   },
   "dependencies": {
-    "autoprefixer": "10.4.23",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
     "eslint": "9.39.2",
     "eslint-config-next": "16.1.6",
-    "next": "16.1.6",
-    "postcss": "8.5.6",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "tailwindcss": "4.1.18"
+    "next": "13.4.9",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "10.4.16",
+    "postcss": "8.4.31",
+    "tailwindcss": "3.3.5"
   }
 }
