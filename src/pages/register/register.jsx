@@ -56,7 +56,7 @@ const Register = () => {
 
                 <p className="text-center text-sm text-gray-600 mt-6">
                 Sudah punya akun?{" "}
-                <Link href="/login" className="text-indigo-600 font-medium">
+                <Link href="/login/login" className="text-indigo-600 font-medium">
                     Login
                 </Link>
                 </p>

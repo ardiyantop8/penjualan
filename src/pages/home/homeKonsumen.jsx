@@ -1,7 +1,9 @@
 import React from 'react'
 import { useRouter } from "next/router";
+import useSessionStore from '@/stores/useSessionStore';
 
 const homeKonsumen = () => {
+    const user = useSessionStore(state => state.user);
     const router = useRouter();
     const products = [
         {
@@ -38,7 +40,11 @@ const homeKonsumen = () => {
                     <li className="hover:text-indigo-600 cursor-pointer">Home</li>
                     <li className="hover:text-indigo-600 cursor-pointer">Produk</li>
                     <li className="hover:text-indigo-600 cursor-pointer">Kontak</li>
-                    <li className="hover:text-indigo-600 cursor-pointer" onClick={() => router.push("/login/login")}>Login</li>
+                    {user ? (
+                        <li className="hover:text-indigo-600 cursor-pointer" onClick={() => router.push("/profile")}>Profile</li>
+                    ) : (
+                        <li className="hover:text-indigo-600 cursor-pointer" onClick={() => router.push("/login/login")}>Login</li>
+                    )}
                 </ul>
                 </div>
             </nav>

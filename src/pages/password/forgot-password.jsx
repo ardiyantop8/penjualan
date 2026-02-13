@@ -28,7 +28,7 @@ const ForgotPassword = () => {
 
                 <p className="text-center text-sm text-gray-600 mt-6">
                 Kembali ke{" "}
-                <Link href="/login" className="text-indigo-600 font-medium">
+                <Link href="/login/login" className="text-indigo-600 font-medium">
                     Login
                 </Link>
                 </p>

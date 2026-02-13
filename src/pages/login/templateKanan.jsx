@@ -1,19 +1,30 @@
-import React from 'react'
-import Link from "next/link";
+import React from 'react';
 import CircularProgress from "@mui/material/CircularProgress";
-import { useRouter } from "next/router";
+import useSessionStore from '@/stores/useSessionStore';
+import { useRouter } from 'next/router';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
+import Link from "next/link";
 
 const TemplateKanan = ({showPassword, setShowPassword}) => {
+    const setUser = useSessionStore(state => state.setUser);
     const router = useRouter();
     const [loading, setLoading] = React.useState(false);
     const [form, setForm] = React.useState({
         email: "",
         password: ""
     });
-    
+    // const handleClickShowPassword = () => setShowPassword((show) => !show);
+    // const handleMouseDownPassword = (event) => {
+    //     event.preventDefault();
+    // };
+
+    // const handleMouseUpPassword = (event) => {
+    //     event.preventDefault();
+    // };
+
     /* API LINK UNTUK SPREADSHEET */
-    let linkLogin = "https://script.google.com/macros/s/AKfycbxeCUkng36SKv5UxyHvfN15CqGYeLLFfebVwFAWANcKQDQoLNAENIIKwB-j_dz29RxQhA/exec?action=login";
+    let linkLogin = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=login";
+
     const onSubmit = async () => {
         setLoading(true);
         const res = await fetch(linkLogin, {
@@ -23,19 +34,19 @@ const TemplateKanan = ({showPassword, setShowPassword}) => {
                 password: form.password
             })
         });
-        // setBtnLogin(true);
 
         const result = await res.json();
         setLoading(false);
         console.log("API Response:", result);
-        // setBtnLogin(false);
 
         if(result.responseCode === "00") {
+            console.log("RESULT DATA:", result);
             setUser(result.data);
-            // redirect ke /home
-            // window.location.href = "/home";
-            // router.push('/home');
-            alert(result.responseMessage);
+            if (result?.data?.role == "admin") {
+                router.push('/home/homeAdmin');
+            } else {
+                router.push('/home/homeKonsumen')
+            }
         } else {
             alert(result.responseMessage);
         }
@@ -45,9 +56,8 @@ const TemplateKanan = ({showPassword, setShowPassword}) => {
         <div className="flex flex-1 items-center justify-center p-6">
             <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
                 <div className="space-y-4 mb-8">
-                    <div className="" onClick={() => router.push('/home/homeKonsumen')}>
+                    <div onClick={() => router.push('/home/homeKonsumen')}>
                         <ArrowBackRoundedIcon className="text-indigo-600"/>
-                        {/* <p>Kembali</p> */}
                     </div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">
                         Login Akun
@@ -57,38 +67,44 @@ const TemplateKanan = ({showPassword, setShowPassword}) => {
                     </p>
                 </div>
 
-                <form className="space-y-5">
+                <form className="space-y-5" onSubmit={onSubmit}>
                     {/* Email */}
                     <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Email
-                    </label>
-                    <input
-                        type="email"
-                        placeholder="email@company.com"
-                        className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Email
+                        </label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={form.email}
+                            onChange={(e) => setForm({...form, email: e.target.value})}
+                            placeholder="email@company.com"
+                            className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
                     </div>
 
                     {/* Password */}
                     <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Password
-                    </label>
-                    <div className="relative">
-                        <input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
-                        <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 hover:text-indigo-600"
-                        >
-                        {showPassword ? "Hide" : "Show"}
-                        </button>
-                    </div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Password
+                        </label>
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                value={form.password}
+                                onChange={(e) => setForm({...form, password: e.target.value})}
+                                placeholder="••••••••"
+                                className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 hover:text-indigo-600"
+                            >
+                                {showPassword ? "Hide" : "Show"}
+                            </button>
+                        </div>
                     </div>
 
                     {/* Lupa Password */}
@@ -103,11 +119,12 @@ const TemplateKanan = ({showPassword, setShowPassword}) => {
 
                     {/* Button Login */}
                     <button
-                        type="submit"
+                        // type="submit"
                         className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition"
-                        onClick={onSubmit} 
-                        >
-                            {loading ? <CircularProgress size={20} color="inherit" /> : "Login"}
+                        disabled={loading}
+                        onClick={onSubmit}
+                    >
+                        {loading ? <CircularProgress size={20} color="inherit" /> : "Login"}
                     </button>
                 </form>
 
@@ -130,7 +147,7 @@ const TemplateKanan = ({showPassword, setShowPassword}) => {
                 </p>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default TemplateKanan
+export default TemplateKanan;
