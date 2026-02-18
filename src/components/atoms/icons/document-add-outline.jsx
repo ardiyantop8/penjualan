@@ -1,0 +1,8 @@
+export const IconDocumentAddOutline = ({color}) => {
+    return (
+        <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.5 3V7C14.5 7.26522 14.6054 7.51957 14.7929 7.70711C14.9804 7.89464 15.2348 8 15.5 8H19.5M14.5 3H7.5C6.96957 3 6.46086 3.21071 6.08579 3.58579C5.71071 3.96086 5.5 4.46957 5.5 5V19C5.5 19.5304 5.71071 20.0391 6.08579 20.4142C6.46086 20.7893 6.96957 21 7.5 21H17.5C18.0304 21 18.5391 20.7893 18.9142 20.4142C19.2893 20.0391 19.5 19.5304 19.5 19V8M14.5 3L19.5 8" stroke={color} stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12.5 11.5V17.5M9.5 14.5H15.5" stroke="#00529C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    );
+};

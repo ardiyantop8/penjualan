@@ -1,6 +1,7 @@
 import React from 'react';
 import CircularProgress from "@mui/material/CircularProgress";
 import useSessionStore from '@/stores/useSessionStore';
+
 import { useRouter } from 'next/router';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import Link from "next/link";
@@ -13,14 +14,7 @@ const TemplateKanan = ({showPassword, setShowPassword}) => {
         email: "",
         password: ""
     });
-    // const handleClickShowPassword = () => setShowPassword((show) => !show);
-    // const handleMouseDownPassword = (event) => {
-    //     event.preventDefault();
-    // };
-
-    // const handleMouseUpPassword = (event) => {
-    //     event.preventDefault();
-    // };
+    const clearUser = useSessionStore(state => state.clearUser);
 
     /* API LINK UNTUK SPREADSHEET */
     let linkLogin = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=login";
@@ -52,11 +46,16 @@ const TemplateKanan = ({showPassword, setShowPassword}) => {
         }
     };
 
+    const backTohomeConsumen = () => {
+        clearUser(); // bersihkan state zustand
+        useSessionStore.persist.clearStorage(); // hapus localStorage
+        router.replace('/home/homeKonsumen');
+    }
     return (
         <div className="flex flex-1 items-center justify-center p-6">
             <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
                 <div className="space-y-4 mb-8">
-                    <div onClick={() => router.push('/home/homeKonsumen')}>
+                    <div onClick={backTohomeConsumen}>
                         <ArrowBackRoundedIcon className="text-indigo-600"/>
                     </div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">

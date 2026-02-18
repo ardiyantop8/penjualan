@@ -5,6 +5,7 @@ import useSessionStore from '@/stores/useSessionStore';
 const homeKonsumen = () => {
     const user = useSessionStore(state => state.user);
     const router = useRouter();
+    const [openUser, setOpenUser] = React.useState(false);
     const products = [
         {
         id: 1,
@@ -28,6 +29,11 @@ const homeKonsumen = () => {
     const login = () => {
 
     }
+
+    const handleLogout = () => {
+        useSessionStore.persist.clearStorage(); // hapus localStorage
+        router.replace("/login/login"); // redirect ke login
+    }
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Navbar */}
@@ -41,7 +47,31 @@ const homeKonsumen = () => {
                     <li className="hover:text-indigo-600 cursor-pointer">Produk</li>
                     <li className="hover:text-indigo-600 cursor-pointer">Kontak</li>
                     {user ? (
-                        <li className="hover:text-indigo-600 cursor-pointer" onClick={() => router.push("/profile")}>Profile</li>
+                        <li className="relative">
+                            <button
+                                onClick={() => setOpenUser(!openUser)}
+                                className="hover:text-indigo-600 cursor-pointer"
+                            >
+                                Profile
+                            </button>
+
+                            {openUser && (
+                                <div className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-lg">
+                                    <ul className="py-2 text-sm text-gray-700">
+                                        <li
+                                            className="px-4 py-2 hover:bg-indigo-50 cursor-pointer"
+                                            onClick={() => router.push("/profile")}
+                                        > Lihat Profil
+                                        </li>
+                                        <li
+                                            className="px-4 py-2 hover:bg-red-50 text-red-500 cursor-pointer"
+                                            onClick={handleLogout}
+                                        > Keluar
+                                        </li>
+                                    </ul>
+                                </div>
+                            )}
+                        </li>
                     ) : (
                         <li className="hover:text-indigo-600 cursor-pointer" onClick={() => router.push("/login/login")}>Login</li>
                     )}
