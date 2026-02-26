@@ -10,6 +10,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import LogoutIcon from '@mui/icons-material/Logout'
 import LoginIcon from '@mui/icons-material/Login';
+import InfoIcon from '@mui/icons-material/Info';
 
 const KonsumenNavbar = () => {
   const router = useRouter()
@@ -33,31 +34,37 @@ const KonsumenNavbar = () => {
             <span className="md:hidden"><HomeIcon className="text-lg" /></span>
             <span className="hidden md:block">Home</span>
           </li>
-          <li className="hover:text-indigo-600 cursor-pointer flex items-center" onClick={() => router.push('/produk')}>
+          <li className="hover:text-indigo-600 cursor-pointer flex items-center" onClick={() => router.push('/produk/produkKonsumen')}>
             <span className="md:hidden"><CategoryIcon className="text-lg" /></span>
             <span className="hidden md:block">Produk</span>
           </li>
-          <li className="hover:text-indigo-600 cursor-pointer flex items-center" onClick={() => router.push('/kontak')}>
+          {/* <li className="hover:text-indigo-600 cursor-pointer flex items-center" onClick={() => router.push('/kontak')}>
             <span className="md:hidden"><PhoneIcon className="text-lg" /></span>
             <span className="hidden md:block">Kontak</span>
-          </li>
+          </li> */}
           <li className="hover:text-indigo-600 cursor-pointer flex items-center" onClick={() => router.push('/keranjang')}>
             <span className="md:hidden"><ShoppingCartIcon className="text-lg" /></span>
             <span className="hidden md:block">Keranjang</span>
           </li>
 
           {user ? (
-            <li className="relative">
-              <button onClick={() => setOpenUser(!openUser)} className="hover:text-indigo-600 cursor-pointer">Profile</button>
-              {openUser && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-lg">
-                  <ul className="py-2 text-sm text-gray-700">
-                    <li className="px-4 py-2 hover:bg-indigo-50 cursor-pointer" onClick={() => router.push('/profile')}>Lihat Profil</li>
-                    <li className="px-4 py-2 hover:bg-red-50 text-red-500 cursor-pointer" onClick={handleLogout}>Keluar</li>
-                  </ul>
-                </div>
-              )}
-            </li>
+            <>
+                <li className="hover:text-indigo-600 cursor-pointer flex items-center" onClick={() => router.push('/status/statusOrder')}>
+                    <span className="md:hidden"><InfoIcon className="text-lg" /></span>
+                    <span className="hidden md:block">Status</span>
+                </li>
+                <li className="relative">
+                <button onClick={() => setOpenUser(!openUser)} className="hover:text-indigo-600 cursor-pointer">Profile</button>
+                {openUser && (
+                    <div className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-lg">
+                    <ul className="py-2 text-sm text-gray-700">
+                        <li className="px-4 py-2 hover:bg-indigo-50 cursor-pointer" onClick={() => router.push('/profil/profilKonsumen')}>Lihat Profil</li>
+                        <li className="px-4 py-2 hover:bg-red-50 text-red-500 cursor-pointer" onClick={handleLogout}>Keluar</li>
+                    </ul>
+                    </div>
+                )}
+                </li>
+            </>
           ) : (
             <li className="hover:text-indigo-600 cursor-pointer" onClick={() => router.push('/login/login')}>Login</li>
           )}
@@ -75,24 +82,27 @@ const KonsumenNavbar = () => {
               <li className="px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 cursor-pointer" onClick={() => { router.push('/'); setOpenMobile(false); }}>
                 <HomeIcon /> Home
               </li>
-              <li className="px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 cursor-pointer" onClick={() => { router.push('/produk'); setOpenMobile(false); }}>
+              <li className="px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 cursor-pointer" onClick={() => { router.push('/produk/produkKonsumen'); setOpenMobile(false); }}>
                 <CategoryIcon /> Produk
               </li>
-              <li className="px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 cursor-pointer" onClick={() => { router.push('/kontak'); setOpenMobile(false); }}>
+              {/* <li className="px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 cursor-pointer" onClick={() => { router.push('/kontak'); setOpenMobile(false); }}>
                 <PhoneIcon /> Kontak
-              </li>
+              </li> */}
               <li className="px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 cursor-pointer" onClick={() => { router.push('/keranjang'); setOpenMobile(false); }}>
                 <ShoppingCartIcon /> Keranjang
               </li>
 
               {user ? (
                 <>
-                  <li className="px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 cursor-pointer" onClick={() => { router.push('/profile'); setOpenMobile(false); }}>
-                    <AccountCircleIcon /> Lihat Profil
-                  </li>
-                  <li className="px-4 py-3 hover:bg-red-50 text-red-500 flex items-center gap-3 cursor-pointer" onClick={() => { handleLogout(); setOpenMobile(false); }}>
-                    <LogoutIcon /> Keluar
-                  </li>
+                    <li className="px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 cursor-pointer" onClick={() => { router.push('/status/statusOrder'); setOpenMobile(false); }}>
+                        <InfoIcon /> Status
+                    </li>
+                    <li className="px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 cursor-pointer" onClick={() => { router.push('/profil/profilKonsumen'); setOpenMobile(false); }}>
+                        <AccountCircleIcon /> Lihat Profil
+                    </li>
+                    <li className="px-4 py-3 hover:bg-red-50 text-red-500 flex items-center gap-3 cursor-pointer" onClick={() => { handleLogout(); setOpenMobile(false); }}>
+                        <LogoutIcon /> Keluar
+                    </li>
                 </>
               ) : (
                 <li className="px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 cursor-pointer" onClick={() => { router.push('/login/login'); setOpenMobile(false); }}><LoginIcon/> Login</li>

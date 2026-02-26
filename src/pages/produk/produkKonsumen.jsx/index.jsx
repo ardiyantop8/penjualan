@@ -1,6 +1,5 @@
 import React from 'react'
 import Link from 'next/link'
-import KonsumenNavbar from '@/components/organisms/KonsumenNavbar'
 
 const ProdukPage = () => {
   const products = [
@@ -13,7 +12,7 @@ const ProdukPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <KonsumenNavbar />
+      {/* <KonsumenNavbar /> */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-gray-800">Produk</h1>

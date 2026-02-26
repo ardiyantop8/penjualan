@@ -1,7 +1,7 @@
 import React from 'react';
 import CircularProgress from "@mui/material/CircularProgress";
 import useSessionStore from '@/stores/useSessionStore';
-
+import { Button } from '@mui/material';
 import { useRouter } from 'next/router';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import Link from "next/link";
@@ -54,15 +54,19 @@ const TemplateKanan = ({showPassword, setShowPassword}) => {
         <>
             <div className="w-full items-center justify-center">
                 {/* Mobile Back Button - Outside Card */}
-                <div className='md:hidden flex gap-3 items-center p-6 cursor-pointer' onClick={backTohomeConsumen}>
-                    <ArrowBackRoundedIcon className="text-indigo-600"/> Kembali
+                <div className='md:hidden  items-center p-6 cursor-pointer' >
+                    <Button className="flex gap-3" onClick={backTohomeConsumen}>
+                        <ArrowBackRoundedIcon className="text-indigo-600"/> Kembali
+                    </Button>
                 </div>
                 
                 <div className="flex flex-1 items-center justify-center p-6">
                     <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
                         {/* Desktop Back Button - Inside Card */}
-                        <div className='hidden md:flex gap-3 items-center mb-6 cursor-pointer' onClick={backTohomeConsumen}>
-                            <ArrowBackRoundedIcon className="text-indigo-600"/> Kembali
+                        <div className='hidden md:flex mb-6 cursor-pointer' onClick={backTohomeConsumen}>
+                            <Button className="gap-3">
+                                <ArrowBackRoundedIcon className="text-indigo-600"/> Kembali
+                            </Button>
                         </div>
 
                         <div className="space-y-4 mb-8">

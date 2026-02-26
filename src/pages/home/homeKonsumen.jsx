@@ -1,7 +1,6 @@
 import React from 'react'
 import { useRouter } from "next/router";
 import useSessionStore from '@/stores/useSessionStore';
-import KonsumenNavbar from '@/components/organisms/KonsumenNavbar';
 
 const homeKonsumen = () => {
     const user = useSessionStore(state => state.user);
@@ -34,7 +33,7 @@ const homeKonsumen = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <KonsumenNavbar />
+            {/* <KonsumenNavbar /> */}
 
             {/* Hero Section */}
             <section className="bg-indigo-600 text-white">
