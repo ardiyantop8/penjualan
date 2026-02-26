@@ -1,118 +1,132 @@
-import React from 'react'
-import { FORM_TYPE, FormBuilder } from '@/components/organisms/forms/builder';
-import { ButtonDefault } from '@/components/atoms/buttons/default';
-import { IconRecycle } from "@/components/atoms/icons/recycle";
-import SearchIcon from "@mui/icons-material/Search";
-import { useFormValidation } from '@/hooks/useFormValidation';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from "react-hook-form";
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  IconButton,
+  Grid,
+  MenuItem,
+  Paper,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const BarangKeluar = () => {
-    const [resetDisabled, setResetDisabled] = React.useState(true);
-    const [searchDisabled, setSearchDisabled] = React.useState(true);
+    const daftarBarang = [
+        { id: 1, nama: "Mouse" },
+        { id: 2, nama: "Keyboard" },
+        { id: 3, nama: "Monitor" },
+    ];
 
-    /* field schema untuk form filter */
-    const fieldsSchema = React.useMemo(() => {
-        return [
-            {
-                name: "namaBarang",
-                getValue: function () {
-                    return null;
-                },
-                validationType: "string",
-                validations: [
-                    {
-                        type: "nullable",
-                    },
-                ],
-            },
-        ];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    const [customer, setCustomer] = useState("");
+    const [items, setItems] = useState([
+        { idBarang: "", qty: 1 },
+    ]);
 
+    const handleAddItem = () => {
+        setItems([...items, { idBarang: "", qty: 1 }]);
+    };
 
-    const { defaultValues, validationSchema } = useFormValidation(fieldsSchema);
-    const methods = useForm({
-        mode: "all",
-        defaultValues,
-        resolver: yupResolver(validationSchema),
-    });
-    const { control, watch, setValue } = methods;
-    const filter = watch();
-    const onReset = () => {
-        console.log("Reset form");
-        // setValue("jenis", null, { shouldValidate: true });
-        // setValue("tanggal", null, { shouldValidate: true });
-        // if (typeof filter?.kanwil  === "object") {
-        //     setValue("kanwil", null, { shouldValidate: true });
-        // }
-        // if (typeof filter?.cabang  === "object") {
-        //     setValue("cabang", null, { shouldValidate: true });
-        // }
-        // if (typeof filter?.unit  === "object") {
-        //     setValue("unit", null, { shouldValidate: true });
-        // }
-        // if (typeof filter?.pekerja  === "object") {
-        //     setValue("pekerja", null, { shouldValidate: true });
-        // }
-        // setValueFilter({});
-        // setData({});
-        // setDataCount({});
-    }
+    const handleRemoveItem = (index) => {
+        const newItems = [...items];
+        newItems.splice(index, 1);
+        setItems(newItems);
+    };
 
-    const onSubmit = (data) => {
-        console.log("Submit form with data: ", data);
-    }
+    const handleChangeItem = (index, field, value) => {
+        const newItems = [...items];
+        newItems[index][field] = value;
+        setItems(newItems);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const payload = {
+            customer,
+            tanggal: new Date().toISOString(),
+            items,
+        };
+
+        console.log("Data transaksi:", payload);
+        alert("Transaksi berhasil (cek console)");
+    };
     return (
-        <div className="w-full">
-            <FormBuilder
-                className="flex flex-col gap-2"
-                fields={[
-                    {
-                        type: FORM_TYPE.TEXT_FIELD,
-                        name: "namaBarang",
-                        placeholder: "Nama Barang",
-                        title: "Nama Barang",
-                    },
-                    {
-                        type: FORM_TYPE.CUSTOM,
-                        component: (
-                            <div className="gap-2 flex justify-end mt-3">
-                                <ButtonDefault
-                                    sx={{
-                                        padding: '6px 24px',
-                                        borderColor: resetDisabled == true ? '#EDEDED' : "#ED6E12"
-                                    }}
-                                    model="outline"
-                                    color="#ED6E12"
-                                    onClick={onReset}
-                                    className='flex'
-                                    startIcon={<IconRecycle color={resetDisabled == true ? "#A6A6A6" : "#ED6E12"}/>}
-                                    disabled={resetDisabled}
-                                >
-                                    Reset
-                                </ButtonDefault>
-                                <ButtonDefault
-                                    sx={{
-                                    padding: "6px 24px",
-                                    }}
-                                    model="fill"
-                                    color="#ED6E12"
-                                    type="submit"
-                                    className="flex"
-                                    startIcon={<SearchIcon />}
-                                    disabled={searchDisabled}
-                                >
-                                    Cari
-                                </ButtonDefault>
-                            </div>
-                        ),
-                    },
-                ]}
-                methods={methods}
-                onSubmit={onSubmit}
-            />
-        </div>
+        <>
+            <Paper sx={{ p: 3, maxWidth: 700 }}>
+                <Typography variant="h6" mb={2}>
+                    Form Barang Keluar
+                </Typography>
+
+                <Box component="form" onSubmit={handleSubmit}>
+                    <TextField
+                        label="Nama Customer"
+                        fullWidth
+                        value={customer}
+                        onChange={(e) => setCustomer(e.target.value)}
+                        sx={{ mb: 3 }}
+                    />
+
+                    {items.map((item, index) => (
+                    <Grid container spacing={2} key={index} mb={1}>
+                        <Grid item xs={6}>
+                        <TextField
+                            select
+                            label="Barang"
+                            fullWidth
+                            value={item.idBarang}
+                            onChange={(e) =>
+                            handleChangeItem(index, "idBarang", e.target.value)
+                            }
+                        >
+                            {daftarBarang.map((barang) => (
+                            <MenuItem key={barang.id} value={barang.id}>
+                                {barang.nama}
+                            </MenuItem>
+                            ))}
+                        </TextField>
+                        </Grid>
+
+                        <Grid item xs={4}>
+                        <TextField
+                            type="number"
+                            label="Qty"
+                            fullWidth
+                            value={item.qty}
+                            onChange={(e) =>
+                            handleChangeItem(index, "qty", e.target.value)
+                            }
+                        />
+                        </Grid>
+
+                        <Grid item xs={2} display="flex" alignItems="center">
+                        <IconButton
+                            color="error"
+                            onClick={() => handleRemoveItem(index)}
+                            disabled={items.length === 1}
+                        >
+                            <DeleteIcon />
+                        </IconButton>
+                        </Grid>
+                    </Grid>
+                    ))}
+
+                    <Button
+                    variant="outlined"
+                    onClick={handleAddItem}
+                    sx={{ mt: 1 }}
+                    >
+                    + Tambah Barang
+                    </Button>
+
+                    <Box mt={3}>
+                    <Button type="submit" variant="contained" color="success">
+                        Simpan Transaksi
+                    </Button>
+                    </Box>
+                </Box>
+                </Paper>
+        </>
     )
 }
 
