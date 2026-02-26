@@ -18,7 +18,7 @@ export default function App({ Component, pageProps, router }) {
   ];
 
   // konsumen routes pake KonsumenLayout
-  const konsumenRoutes = ['/home/homeKonsumen', '/produk', '/status', '/profil/profilKonsumen']; // prefix untuk halaman produk
+  const konsumenRoutes = ['/home/homeKonsumen', '/produk', '/status', '/profil/profilKonsumen', '/keranjang']; // prefix untuk halaman produk
 
   if (noLayoutRoutes.includes(router.pathname)) {
     return <Component {...pageProps} />

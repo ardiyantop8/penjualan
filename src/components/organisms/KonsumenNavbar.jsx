@@ -38,10 +38,6 @@ const KonsumenNavbar = () => {
             <span className="md:hidden"><CategoryIcon className="text-lg" /></span>
             <span className="hidden md:block">Produk</span>
           </li>
-          {/* <li className="hover:text-indigo-600 cursor-pointer flex items-center" onClick={() => router.push('/kontak')}>
-            <span className="md:hidden"><PhoneIcon className="text-lg" /></span>
-            <span className="hidden md:block">Kontak</span>
-          </li> */}
           <li className="hover:text-indigo-600 cursor-pointer flex items-center" onClick={() => router.push('/keranjang')}>
             <span className="md:hidden"><ShoppingCartIcon className="text-lg" /></span>
             <span className="hidden md:block">Keranjang</span>
@@ -85,9 +81,6 @@ const KonsumenNavbar = () => {
               <li className="px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 cursor-pointer" onClick={() => { router.push('/produk/produkKonsumen'); setOpenMobile(false); }}>
                 <CategoryIcon /> Produk
               </li>
-              {/* <li className="px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 cursor-pointer" onClick={() => { router.push('/kontak'); setOpenMobile(false); }}>
-                <PhoneIcon /> Kontak
-              </li> */}
               <li className="px-4 py-3 hover:bg-indigo-50 flex items-center gap-3 cursor-pointer" onClick={() => { router.push('/keranjang'); setOpenMobile(false); }}>
                 <ShoppingCartIcon /> Keranjang
               </li>
