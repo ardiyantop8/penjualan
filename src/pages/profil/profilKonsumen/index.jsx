@@ -11,16 +11,46 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import useSessionStore from '@/stores/useSessionStore';
 
+// Helper function untuk format tanggal ke DD/MM/YYYY
+// Handle ISO format "1990-12-31T17:00:00.000Z" dan "31-12-1990" atau "31/12/1990"
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  
+  let day, month, year;
+  
+  // Jika format ISO (mengandung T), ambil hanya bagian date sebelum T
+  if (dateString.includes('T')) {
+    const datePart = dateString.split('T')[0]; // "1990-12-31"
+    [year, month, day] = datePart.split('-');
+  } else if (dateString.includes('-')) {
+    // Format DD-MM-YYYY atau YYYY-MM-DD
+    const parts = dateString.split('-');
+    if (parts[0].length === 4) {
+      // YYYY-MM-DD format
+      [year, month, day] = parts;
+    } else {
+      // DD-MM-YYYY format
+      [day, month, year] = parts;
+    }
+  } else if (dateString.includes('/')) {
+    // Jika sudah DD/MM/YYYY, return apa adanya
+    return dateString;
+  }
+  
+  return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+};
+
 const ProfilKonsumen = () => {
   const user = useSessionStore(state => state.user);
+  console.log("USER STATE:", user);
   const setUser = useSessionStore(state => state.setUser);
   console.log("DATAUSER:", user);
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState({
     nama: "",
-    email: "",
-    nohp: "",
-    alamat: ""
+    jenis: "",
+    tgllahir: "",
+    password: ""
   });
 
   useEffect(() => {
@@ -39,6 +69,9 @@ const ProfilKonsumen = () => {
   };
 
   const handleSave = () => {
+
+    const linkUpdateAnggota = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=updateAnggota"
+    
     // TODO: hit API update profile
     localStorage.setItem("user", JSON.stringify(form));
     setUser(form);
@@ -79,31 +112,20 @@ const ProfilKonsumen = () => {
             />
 
             <TextField
-              label="Email"
-              name="email"
-              value={form.email}
+              label="Jenis Kelamin"
+              name="jenis"
+              value={form.jenis}
               onChange={handleChange}
               disabled={!editMode}
               fullWidth
             />
 
             <TextField
-              label="No Handphone"
-              name="nohp"
-              value={form.nohp}
+              label="Tanggal Lahir"
+              name="tgllahir"
+              value={formatDate(form.tgllahir)}
               onChange={handleChange}
               disabled={!editMode}
-              fullWidth
-            />
-
-            <TextField
-              label="Alamat"
-              name="alamat"
-              value={form.alamat}
-              onChange={handleChange}
-              disabled={!editMode}
-              multiline
-              rows={3}
               fullWidth
             />
           </div>

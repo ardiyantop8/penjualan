@@ -8,7 +8,7 @@ import RadioDefault from "@/components/molecules/radio/default";
 import RadioHorizontal from "@/components/molecules/radio/horizontal";
 import RadioVertical from "@/components/molecules/radio/vertical";
 // import SelectAsyncSearch from "@/components/molecules/selects/async-search";
-// import SelectDefault from "@/components/molecules/selects/default";
+import SelectDefault from "@/components/molecules/selects/default";
 // import MultiSelectChip from "@/components/molecules/selects/multi-select-chip-async-or-default";
 // import MultiSelectChipAll from "@/components/molecules/selects/multi-select-with-select-all";
 import { TextFieldDefault } from "@/components/molecules/text_fields/default";
@@ -107,8 +107,8 @@ const FormContent = ({ type, ...restProps }) => {
       return <ResponsiveDatePickerWithClear {...restProps} />;
     case FORM_TYPE.YEAR_MONTH_PICKER:
       return <YearMonthPicker {...restProps} />;
-    // case FORM_TYPE.SELECT:
-    //   return <SelectDefault {...restProps} />;
+    case FORM_TYPE.SELECT:
+      return <SelectDefault {...restProps} />;
     // case FORM_TYPE.SELECT_SEARCH_NORMAL:
     //   return <SelectWithSearch {...restProps} />;
     // case FORM_TYPE.SELECT_SEARCH_ASYNC:

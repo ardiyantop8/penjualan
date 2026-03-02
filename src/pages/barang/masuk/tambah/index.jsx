@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/router';
 import { Card, Button, Typography } from '@mui/material'
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
@@ -12,8 +12,11 @@ import SaveIcon from '@mui/icons-material/Save';
 import UploadFileIcon from "@mui/icons-material/UploadFile"
 
 const AddBarangMasuk = () => {
-    const [file, setFile] = React.useState(null)
+    const [file, setFile] = useState(null)
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const [loadingJenis, setLoadingJenis] = useState(true);
+    const [optionJenis, setOptionJenis] = useState([]);
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0])
@@ -22,7 +25,7 @@ const AddBarangMasuk = () => {
         router.push('/barang/masuk');
     }
 
-    const fieldsSchema = React.useMemo(() => {
+    const fieldsSchema = useMemo(() => {
         return [
             {
                 name: "namaBarang",
@@ -114,9 +117,69 @@ const AddBarangMasuk = () => {
         console.log("Reset form");
         // setValue("jenis", null, { shouldValidate: true });
     }
-    const onSubmit = (data) => {
-        console.log("Submit form", data);
+    const linkGetJenisBarang = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=inquiryJenisBarang"
+    const onSubmit = async (data) => {
+        // console.log("Submit form", data);
+        // setLoading(true);
+        // try {
+        //     const res = await fetch(linkCreateAnggota, {
+        //         method: "POST",
+        //         body: JSON.stringify({
+        //             nama: form.nama,
+        //             jenis: form.gender,
+        //             status: "anggota",
+        //             tgllahir: apiDate,
+        //             email: form.email,
+        //             password: form.password1,
+        //             role: "anggota"
+        //         })
+        //     });
+
+        //     const result = await res.json();
+        //     console.log("API Response:", result);
+
+        //     if(result.responseCode === "00") {
+        //         setUser && setUser(result.data);
+        //         alert('Registrasi berhasil! Silakan login dengan akun Anda.');
+        //         router.push('/login/login');
+        //     } else {
+        //         alert(result.responseMessage || 'Registrasi gagal');
+        //     }
+        // } catch (err) {
+        //     console.error(err);
+        //     alert('Terjadi kesalahan. Silakan coba lagi.');
+        // } finally {
+        //     setLoading(false);
+        // }
     }
+
+    useEffect(() => {
+        fetch(linkGetJenisBarang, {
+            method: "POST",
+            body: JSON.stringify({
+                page: 1,
+                rows: 20
+            })
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.responseCode === '00') {
+                setOptionJenis(result.data.data.map(item => ({
+                    label: item.namajenis,
+                    value: item.idjenis
+                })));
+            } else {
+                alert(result.responseMessage);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Gagal memuat jenis barang.');
+        })
+        .finally(() => {
+            setLoadingJenis(false);
+        });
+    },[]);
     return (
         <Card className="p-4 border border-gray-300">
             <div onClick={backToBarangMasuk} className="flex items-center gap-2">
@@ -130,6 +193,15 @@ const AddBarangMasuk = () => {
                 <FormBuilder
                     className="sm:grid sm:grid-cols-3 gap-2"
                     fields={[
+                        {
+                            type: FORM_TYPE.SELECT,
+                            name: "jenisBarang",
+                            placeholder: "Jenis Barang",
+                            title: "Jenis Barang",
+                            control: control,
+                            options: optionJenis,
+                            isDisabled: loadingJenis
+                        },
                         {
                             type: FORM_TYPE.TEXT_FIELD,
                             name: "namaBarang",
