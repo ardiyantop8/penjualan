@@ -118,40 +118,54 @@ const AddBarangMasuk = () => {
         // setValue("jenis", null, { shouldValidate: true });
     }
     const linkGetJenisBarang = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=inquiryJenisBarang"
+    const linkCreateBarang = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=createBarang"
+    const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+
     const onSubmit = async (data) => {
-        // console.log("Submit form", data);
-        // setLoading(true);
-        // try {
-        //     const res = await fetch(linkCreateAnggota, {
-        //         method: "POST",
-        //         body: JSON.stringify({
-        //             nama: form.nama,
-        //             jenis: form.gender,
-        //             status: "anggota",
-        //             tgllahir: apiDate,
-        //             email: form.email,
-        //             password: form.password1,
-        //             role: "anggota"
-        //         })
-        //     });
+        try {
+            let base64Image = null;
+            let mimeType = null;
+            let fileName = null;
 
-        //     const result = await res.json();
-        //     console.log("API Response:", result);
+            if (file) {
+            base64Image = await toBase64(file);
+            mimeType = file.type;
+            fileName = file.name;
+            }
 
-        //     if(result.responseCode === "00") {
-        //         setUser && setUser(result.data);
-        //         alert('Registrasi berhasil! Silakan login dengan akun Anda.');
-        //         router.push('/login/login');
-        //     } else {
-        //         alert(result.responseMessage || 'Registrasi gagal');
-        //     }
-        // } catch (err) {
-        //     console.error(err);
-        //     alert('Terjadi kesalahan. Silakan coba lagi.');
-        // } finally {
-        //     setLoading(false);
-        // }
-    }
+            const res = await fetch(linkCreateBarang, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "createBarang",
+                namaBarang: data.namaBarang,
+                idJenis: data.jenisBarang.value,
+                hargaModal: data.hargaModal,
+                hargaJual: data.hargaJual,
+                size: data.size,
+                rangeUsia: data.rangeUsia,
+                stok: data.jmlhStok,
+                status: "aktif",
+                imageBase64: base64Image,
+                mimeType: mimeType,
+                fileName: fileName
+            })
+            });
+
+            const result = await res.json();
+            if (result.responseCode === "00") {
+                alert("Barang berhasil ditambahkan!");
+            }
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     useEffect(() => {
         fetch(linkGetJenisBarang, {
@@ -210,18 +224,30 @@ const AddBarangMasuk = () => {
                             control: control
                         },
                         {
-                            type: FORM_TYPE.TEXT_FIELD,
+                            type: FORM_TYPE.TEXT_FIELD_PREFIX_POSTFIX_CURRENCY,
                             name: "hargaModal",
                             placeholder: "Harga Modal",
                             title: "Harga Modal",
-                            control: control
+                            control: control,
+                            prefixPostFix: "Rp.",
+                            position: "start",
+                            thousandSeparator: ".",
+                            decimalSeparator: ",",
+                            decimalScale: 0,
+                            inputTextAlign: "right"
                         },
                         {
-                            type: FORM_TYPE.TEXT_FIELD,
+                            type: FORM_TYPE.TEXT_FIELD_PREFIX_POSTFIX_CURRENCY,
                             name: "hargaJual",
                             placeholder: "Harga Jual",
                             title: "Harga Jual",
-                            control: control
+                            control: control,
+                            prefixPostFix: "Rp.",
+                            position: "start",
+                            thousandSeparator: ".",
+                            decimalSeparator: ",",
+                            decimalScale: 0,
+                            inputTextAlign: "right"
                         },
                         {
                             type: FORM_TYPE.TEXT_FIELD,
