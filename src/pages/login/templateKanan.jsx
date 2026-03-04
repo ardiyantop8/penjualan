@@ -5,6 +5,7 @@ import { Button } from '@mui/material';
 import { useRouter } from 'next/router';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import Link from "next/link";
+import { ModalLoadingUtil } from "@/helpers/ModalLoadingUtil";
 
 const TemplateKanan = ({showPassword, setShowPassword}) => {
     const setUser = useSessionStore(state => state.setUser);
@@ -21,6 +22,7 @@ const TemplateKanan = ({showPassword, setShowPassword}) => {
 
     const onSubmit = async () => {
         setLoading(true);
+        ModalLoadingUtil.showModal();
         const res = await fetch(linkLogin, {
             method: "POST",
             body: JSON.stringify({
@@ -31,9 +33,10 @@ const TemplateKanan = ({showPassword, setShowPassword}) => {
 
         const result = await res.json();
         setLoading(false);
+        ModalLoadingUtil.hideModal();
 
         if(result.responseCode === "00") {
-            alert('Login berhasil!');
+            // alert('Login berhasil!');
             setUser(result.data);
             if (result?.data?.role == "admin") {
                 router.push('/home/homeAdmin');

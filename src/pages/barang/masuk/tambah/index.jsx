@@ -9,7 +9,8 @@ import { useFormValidation } from '@/hooks/useFormValidation';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from "react-hook-form";
 import SaveIcon from '@mui/icons-material/Save';
-import UploadFileIcon from "@mui/icons-material/UploadFile"
+import { ModalLoadingUtil } from "@/helpers/ModalLoadingUtil";
+import { ModalSuccessUtil } from "@/helpers/ModalSuccessUtil";
 
 const AddBarangMasuk = () => {
     const [file, setFile] = useState(null)
@@ -128,6 +129,7 @@ const AddBarangMasuk = () => {
     });
 
     const onSubmit = async (data) => {
+        ModalLoadingUtil.showModal();
         try {
             let base64Image = null;
             let mimeType = null;
@@ -140,34 +142,42 @@ const AddBarangMasuk = () => {
             }
 
             const res = await fetch(linkCreateBarang, {
-            method: "POST",
-            body: JSON.stringify({
-                action: "createBarang",
-                namaBarang: data.namaBarang,
-                idJenis: data.jenisBarang.value,
-                hargaModal: data.hargaModal,
-                hargaJual: data.hargaJual,
-                size: data.size,
-                rangeUsia: data.rangeUsia,
-                stok: data.jmlhStok,
-                status: "aktif",
-                imageBase64: base64Image,
-                mimeType: mimeType,
-                fileName: fileName
-            })
+                method: "POST",
+                body: JSON.stringify({
+                    action: "createBarang",
+                    namaBarang: data.namaBarang,
+                    idJenis: data.jenisBarang.value,
+                    hargaModal: data.hargaModal,
+                    hargaJual: data.hargaJual,
+                    size: data.size,
+                    rangeUsia: data.rangeUsia,
+                    stok: data.jmlhStok,
+                    status: "aktif",
+                    imageBase64: base64Image,
+                    mimeType: mimeType,
+                    fileName: fileName
+                })
             });
 
             const result = await res.json();
             if (result.responseCode === "00") {
-                alert("Barang berhasil ditambahkan!");
+                ModalSuccessUtil.showModal(result?.responseMessage ? result.responseMessage : "Barang berhasil ditambahkan!", () => {
+                    router.push('/barang/masuk');
+                });
+                // alert('Barang berhasil ditambahkan!');
+                router.push('/barang/masuk');
+            } else {
+                alert(result.responseMessage);
             }
 
         } catch (err) {
             console.error(err);
         }
+        ModalLoadingUtil.hideModal();
     };
 
     useEffect(() => {
+        ModalLoadingUtil.showModal();
         fetch(linkGetJenisBarang, {
             method: "POST",
             body: JSON.stringify({
@@ -192,6 +202,7 @@ const AddBarangMasuk = () => {
         })
         .finally(() => {
             setLoadingJenis(false);
+            ModalLoadingUtil.hideModal();
         });
     },[]);
     return (

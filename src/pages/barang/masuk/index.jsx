@@ -1,17 +1,29 @@
 import { Card, TableContainer, TableCell, TableRow, TablePagination, Box } from '@mui/material'
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import { ButtonDefault } from '@/components/atoms/buttons/default';
 import { IconAdd } from "@/components/atoms/icons/add";
 import { TablePaginationActions } from '@/components/molecules/table/table-pagination-actions'
 import { formatNominal } from "@/utils/formatString";
 import DataTableSubHeader from '@/components/molecules/table/data-table-sub-header';
 import { useRouter } from 'next/router';
+import { ModalLoadingUtil } from "@/helpers/ModalLoadingUtil";
+import { ModalSuccessUtil } from "@/helpers/ModalSuccessUtil";
 
 const BarangMasuk = () => {
     const router = useRouter();
     const addBarang = () => {
         router.push('/barang/masuk/tambah');
     }
+    const [dataAPI, setDataAPI] = useState([]);
+    const [optionJenis, setOptionJenis] = useState([]);
+    const [loadingJenis, setLoadingJenis] = useState(false);
+    const [filterData, setFilterData] = useState({
+        pagination: {
+            page: 1,
+            limit: 10,
+        },
+        search: '',
+    });
 
     const data = [
         {
@@ -81,6 +93,38 @@ const BarangMasuk = () => {
             },
         });
     };
+
+    const linkGetJenisBarang = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=inquiryJenisBarang"
+
+    useEffect(() => {
+            ModalLoadingUtil.showModal();
+            fetch(linkGetJenisBarang, {
+                method: "POST",
+                body: JSON.stringify({
+                    page: 1,
+                    rows: 20
+                })
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.responseCode === '00') {
+                    setDataAPI(result.data.data.map(item => ({
+                        label: item.namajenis,
+                        value: item.idjenis
+                    })));
+                } else {
+                    alert(result.responseMessage);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Gagal memuat jenis barang.');
+            })
+            .finally(() => {
+                setLoadingJenis(false);
+                ModalLoadingUtil.hideModal();
+            });
+        },[]);
     return (
         <>
             <Card className="p-4 border border-gray-300">
