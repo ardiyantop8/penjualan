@@ -1,4 +1,4 @@
-import { Card, TableContainer, TableCell, TableRow, TablePagination, Box } from '@mui/material'
+import { Card, TableContainer, TableCell, TableRow, TablePagination, Box, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material'
 import React, {useEffect, useState} from 'react'
 import { ButtonDefault } from '@/components/atoms/buttons/default';
 import { IconAdd } from "@/components/atoms/icons/add";
@@ -10,9 +10,71 @@ import { ModalLoadingUtil } from "@/helpers/ModalLoadingUtil";
 import { ModalSuccessUtil } from "@/helpers/ModalSuccessUtil";
 
 const BarangMasuk = () => {
+    const [dataNew, setDataNew] = useState([]);
     const router = useRouter();
+    const [openModalJenis, setOpenModalJenis] = useState(false);
+    const [formJenis, setFormJenis] = useState({
+        namaJenis: '',
+        deskripsi: '',
+        keterangan: ''
+    });
+    
     const addBarang = () => {
         router.push('/barang/masuk/tambah');
+    }
+    
+    const addJenisBarang = () => {
+        setOpenModalJenis(true);
+    }
+    
+    const handleCloseModal = () => {
+        setOpenModalJenis(false);
+        setFormJenis({
+            namaJenis: '',
+            deskripsi: '',
+            keterangan: ''
+        });
+    }
+    
+    const handleChangeForm = (e) => {
+        const { name, value } = e.target;
+        setFormJenis({
+            ...formJenis,
+            [name]: value
+        });
+    }
+    
+    const handleSaveJenis = async () => {
+        const linkCreateJenis = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=createJenisBarang"
+        if (!formJenis.namaJenis.trim()) {
+            alert('Nama Jenis tidak boleh kosong');
+            return;
+        }
+        ModalLoadingUtil.showModal();
+        fetch(linkCreateJenis, {
+            method: "POST",
+            body: JSON.stringify({
+                namaJenis: formJenis.namaJenis,
+                namaBranch: formJenis.namaBranch,
+                aksesoris: formJenis.aksesoris
+            })
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.responseCode === '00') {
+                ModalSuccessUtil.showModal('Berhasil menambahkan jenis barang');
+                handleCloseModal();
+            } else {
+                alert(result.responseMessage);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Gagal memuat jenis barang.');
+        })
+        .finally(() => {
+            ModalLoadingUtil.hideModal();
+        });
     }
     const [dataAPI, setDataAPI] = useState([]);
     const [optionJenis, setOptionJenis] = useState([]);
@@ -25,47 +87,16 @@ const BarangMasuk = () => {
         search: '',
     });
 
-    const data = [
-        {
-            no: 1,
-            region_code: 'RO-001',
-            region_desc: 'Regional Office 1',
-            status_kunjungan: {
-                plan: 10,
-                done: 8,
-                cancelled: 2,
-            },
-            total_kunjungan: 10,
-            detail_kunjungan_pembinaan: {
-                debitur: 5,
-                outstanding: 5000000,
-            },
-        },
-        {
-            no: 2,
-            region_code: 'RO-002',
-            region_desc: 'Regional Office 2',
-            status_kunjungan: {
-                plan: 15,
-                done: 12,
-                cancelled: 3,
-            },
-            total_kunjungan: 15,
-            detail_kunjungan_pembinaan: {
-                debitur: 7,
-                outstanding: 7500000,
-            },
-        },
-    ];
+    const data = dataAPI?.data || [];
 
     const cellStyle = { borderLeft: '2px solid #E0E0E0', borderRight: '2px solid #E0E0E0' };
     const columnsTop = [
         { label: 'No', rowspan: 2, align: 'center', width: 60 },
-        { label: 'Kode', rowspan: 2, align: 'center', width: 80 },
-        { label: 'Regional Office', rowspan: 2, align: 'left', width: 140 },
-        { label: 'Status Aktivitas', colspan: 3 },  
-        { label: 'Total Aktivitas', rowspan: 2, align: 'center', width: 100 },
-        { label: 'Detail Aktivitas Selesai Dikunjungi', colspan: 6 },
+        { label: 'Nama Barang', rowspan: 2, align: 'center', width: 80 },
+        { label: 'Harga Modal', rowspan: 2, align: 'left', width: 140 },
+        { label: 'Harga Jual', rowspan: 2, align: 'left', width: 140 },
+        { label: 'Link URL', rowspan: 2, align: 'left', width: 140 },
+        
     ];
 
     const columnsSub =  [
@@ -94,56 +125,104 @@ const BarangMasuk = () => {
         });
     };
 
-    const linkGetJenisBarang = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=inquiryJenisBarang"
+    const linkGetBarang = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=inquiryBarangMasukSort"
+
+    // useEffect(() => {
+    //         ModalLoadingUtil.showModal();
+    //         fetch(linkGetJenisBarang, {
+    //             method: "POST",
+    //             body: JSON.stringify({
+    //                 page: 1,
+    //                 rows: 20
+    //             })
+    //         })
+    //         .then(r => r.json())
+    //         .then(result => {
+    //             if (result.responseCode === '00') {
+    //                 setDataAPI(result.data.data.map(item => ({
+    //                     label: item.namajenis,
+    //                     value: item.idjenis
+    //                 })));
+    //             } else {
+    //                 alert(result.responseMessage);
+    //             }
+    //         })
+    //         .catch(err => {
+    //             console.error(err);
+    //             alert('Gagal memuat jenis barang.');
+    //         })
+    //         .finally(() => {
+    //             setLoadingJenis(false);
+    //             ModalLoadingUtil.hideModal();
+    //         });
+    //     },[]);
 
     useEffect(() => {
-            ModalLoadingUtil.showModal();
-            fetch(linkGetJenisBarang, {
-                method: "POST",
-                body: JSON.stringify({
-                    page: 1,
-                    rows: 20
-                })
+        ModalLoadingUtil.showModal();
+        fetch(linkGetBarang, {
+            method: "POST",
+            body: JSON.stringify({
+                page: 1,
+                rows: 10
             })
-            .then(r => r.json())
-            .then(result => {
-                if (result.responseCode === '00') {
-                    setDataAPI(result.data.data.map(item => ({
-                        label: item.namajenis,
-                        value: item.idjenis
-                    })));
-                } else {
-                    alert(result.responseMessage);
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Gagal memuat jenis barang.');
-            })
-            .finally(() => {
-                setLoadingJenis(false);
-                ModalLoadingUtil.hideModal();
-            });
-        },[]);
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.responseCode === '00') {
+                console.log("result:", result);
+                setDataAPI(result.data);
+                // setDataAPI(result.data.data.map(item => ({
+                //     label: item.namajenis,
+                //     value: item.idjenis
+                // })));
+            } else {
+                alert(result.responseMessage);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Gagal memuat jenis barang.');
+        })
+        .finally(() => {
+            ModalLoadingUtil.hideModal();
+        });
+    },[]);
     return (
         <>
             <Card className="p-4 border border-gray-300">
-                <div className="pb-4 px-4">
-                    <ButtonDefault
-                        sx={{
-                            padding: '6px 24px',
-                            borderColor: "#ED6E12"
-                        }}
-                        model="outline"
-                        color="#ED6E12"
-                        onClick={addBarang}
-                        className='flex items-center'
-                        startIcon={<IconAdd color="#ED6E12" width={15} height={15}/>}
-                    > Tambah Barang Masuk
-                    </ButtonDefault>
-                    
+                <div className="flex gap-1">
+                    <div className="pb-4 pl-4">
+                        <ButtonDefault
+                            sx={{
+                                padding: '6px 24px',
+                                borderColor: "#ED6E12"
+                            }}
+                            model="outline"
+                            color="#ED6E12"
+                            onClick={addBarang}
+                            className='flex items-center'
+                            startIcon={<IconAdd color="#ED6E12" width={15} height={15}/>}
+                        > Tambah Barang Masuk
+                        </ButtonDefault>
+                    </div>
+                    <div className="pb-4 px-2">
+                        <ButtonDefault
+                            sx={{
+                                padding: '6px 24px',
+                                borderColor: "#ED6E12"
+                            }}
+                            model="outline"
+                            color="#ED6E12"
+                            onClick={addJenisBarang}
+                            className='flex items-center'
+                            startIcon={<IconAdd color="#ED6E12" width={15} height={15}/>}
+                        > Tambah Jenis Barang
+                        </ButtonDefault>
+                    </div>
                 </div>
-                <hr />
+                <div className='px-4'>
+                    <hr />
+                </div>
                 <div className="py-4">
                     <h1 className="px-4 text-2xl font-bold">Barang Masuk</h1>
                     <TableContainer  className="px-4 w-full">
@@ -153,7 +232,7 @@ const BarangMasuk = () => {
                                 sx={cellStyle}
                                 data={data}
                                 columnsTop={columnsTop}
-                                columnsSub={columnsSub}
+                                // columnsSub={columnsSub}
                                 isStickyHeader={true}
                                 freezeLeftColumn={3}
                                 renderRow={(row, index, freezeLeftColumn, getLeftOffset, columnWidths) => (
@@ -171,12 +250,7 @@ const BarangMasuk = () => {
                                                 minWidth: columnWidths[0],
                                             }}
                                         >
-                                            {/* {(filterData.pagination.page - 1) * 
-                                                filterData.pagination.limit +
-                                                row.no +
-                                                '.'
-                                            } */}
-                                            {row.no + '.'}
+                                            {row.idMasuk + '.'}
                                         </TableCell>
                                         <TableCell 
                                             sx={{
@@ -191,7 +265,7 @@ const BarangMasuk = () => {
                                                 minWidth: columnWidths[1],
                                             }}
                                         >
-                                            {row.region_code ?? '-'}
+                                            {row?.namaBarang ?? '-'}
                                         </TableCell>
                                         <TableCell 
                                             sx={{
@@ -206,14 +280,38 @@ const BarangMasuk = () => {
                                                 minWidth: columnWidths[2],
                                             }}
                                         >
-                                            {formatNominal(row?.region_desc) || '-'}
+                                            {formatNominal(row?.hargaModal) ?? '-'}
                                         </TableCell>
-                                        <TableCell sx={cellStyle} align="center">{formatNominal(row?.status_kunjungan?.plan) || 0}</TableCell>
-                                        <TableCell sx={cellStyle} align="center">{formatNominal(row?.status_kunjungan?.done) || 0}</TableCell>
-                                        <TableCell sx={cellStyle} align="center">{formatNominal(row?.status_kunjungan?.cancelled) || 0}</TableCell>
-                                        <TableCell sx={cellStyle} align="center">{formatNominal(row?.total_kunjungan) || 0}</TableCell>
-                                        <TableCell sx={cellStyle} align="center">{formatNominal(row?.detail_kunjungan_pembinaan?.debitur) || 0}</TableCell>
-                                        <TableCell sx={cellStyle} align="right">{formatNominal(row?.detail_kunjungan_pembinaan?.outstanding) || 0}</TableCell>
+                                        <TableCell 
+                                            sx={{
+                                                borderLeft: '2px solid #E0E0E0',
+                                                borderRight: '2px solid #E0E0E0',
+                                                ...(3 < freezeLeftColumn && {
+                                                    position: 'sticky',
+                                                    left: getLeftOffset(3),
+                                                    zIndex: 2,
+                                                    backgroundColor: '#fff',
+                                                }),
+                                                minWidth: columnWidths[3],
+                                            }}
+                                        >
+                                            {formatNominal(row?.hargaJual) ?? '-'}
+                                        </TableCell>
+                                        <TableCell 
+                                            sx={{
+                                                borderLeft: '2px solid #E0E0E0',
+                                                borderRight: '2px solid #E0E0E0',
+                                                ...(3 < freezeLeftColumn && {
+                                                    position: 'sticky',
+                                                    left: getLeftOffset(3),
+                                                    zIndex: 2,
+                                                    backgroundColor: '#fff',
+                                                }),
+                                                minWidth: columnWidths[3],
+                                            }}
+                                        >
+                                            {row?.gambarUrl ?? '-'}
+                                        </TableCell>
                                     </TableRow>
                                 )}
                             />
@@ -238,7 +336,7 @@ const BarangMasuk = () => {
                                             rowsPerPageOptions={[10, 20, 50]}
                                             count={Math.ceil(data.length )}
                                             rowsPerPage={10}
-                                            page={1}
+                                            page={dataAPI?.page}
                                             onPageChange={handlePageChange}
                                             onRowsPerPageChange={handleChangeRowsPerPage}
                                             SelectProps={{
@@ -247,7 +345,7 @@ const BarangMasuk = () => {
                                             labelRowsPerPage={"Jumlah Baris Tiap Halaman"}
                                             labelDisplayedRows={(props) => {
                                                 if (props.count !== 0) {
-                                                    return `Halaman ${props?.page} dari ${Math.ceil(data.length / props.rowsPerPage)}`;
+                                                    return `Halaman ${dataAPI?.page} dari ${Math.ceil(dataAPI?.totalPages || 1)}`;
                                                 }
                                             }}
                                             ActionsComponent={TablePaginationActions}
@@ -259,6 +357,60 @@ const BarangMasuk = () => {
                     </TableContainer>
                 </div>
             </Card>
+            
+            {/* Modal Tambah Jenis Barang */}
+            <Dialog open={openModalJenis} onClose={handleCloseModal} maxWidth="sm" fullWidth>
+                <DialogTitle>Tambah Jenis Barang</DialogTitle>
+                <DialogContent sx={{ pt: 2 }}>
+                    <TextField
+                        fullWidth
+                        label="Nama Jenis"
+                        name="namaJenis"
+                        value={formJenis.namaJenis}
+                        onChange={handleChangeForm}
+                        placeholder="Masukkan nama jenis barang"
+                        margin="normal"
+                    />
+                    <TextField
+                        fullWidth
+                        label="Nama Branch"
+                        name="namaBranch"
+                        value={formJenis.namaBranch}
+                        onChange={handleChangeForm}
+                        placeholder="Masukkan nama branch"
+                        margin="normal"
+                    />
+                    <TextField
+                        fullWidth
+                        label="Tipe Aksesoris"
+                        name="aksesoris"
+                        value={formJenis.aksesoris}
+                        onChange={handleChangeForm}
+                        placeholder="Masukkan jenis aksesoris"
+                        margin="normal"
+                        // multiline
+                        // rows={3}
+                    />
+                </DialogContent>
+                <DialogActions sx={{ p: 2 }}>
+                    <ButtonDefault
+                        model="outline"
+                        color="#ED6E12"
+                        onClick={handleCloseModal}
+                        sx={{ padding: '6px 24px' }}
+                    >
+                        Batal
+                    </ButtonDefault>
+                    <ButtonDefault
+                        model="fill"
+                        color="#ED6E12"
+                        onClick={handleSaveJenis}
+                        sx={{ padding: '6px 24px' }}
+                    >
+                        Simpan
+                    </ButtonDefault>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }
