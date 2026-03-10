@@ -4,58 +4,33 @@ import { useRouter } from "next/router";
 import useSessionStore from '@/stores/useSessionStore';
 import { ModalLoadingUtil } from "@/helpers/ModalLoadingUtil";
 import { ModalSuccessUtil } from "@/helpers/ModalSuccessUtil";
-import { data } from 'autoprefixer';
+import { convertDriveImage } from "@/utils/imageHelper";
+import barangService from '@/services/barangService';
 
 const ProdukPage = () => {
   const user = useSessionStore(state => state.user);
-    const router = useRouter();
-    const [dataBarang, setDataBarang] = useState([]);
-    const linkGetBarang = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=inquiryBarangMasukSort"
-  const products = [
-    { id: 1, name: 'Sepatu Sneakers', price: 'Rp 350.000', image: 'https://via.placeholder.com/400x300', desc: 'Nyaman untuk sehari-hari' },
-    { id: 2, name: 'Jaket Hoodie', price: 'Rp 250.000', image: 'https://via.placeholder.com/400x300', desc: 'Hangat dan stylish' },
-    { id: 3, name: 'Tas Ransel', price: 'Rp 400.000', image: 'https://via.placeholder.com/400x300', desc: 'Cocok untuk aktivitas outdoor' },
-    { id: 4, name: 'Kemeja Katun', price: 'Rp 180.000', image: 'https://via.placeholder.com/400x300', desc: 'Ringan dan adem' },
-    { id: 5, name: 'Topi Trucker', price: 'Rp 75.000', image: 'https://via.placeholder.com/400x300', desc: 'Pelindung matahari' }
-  ]
+  const router = useRouter();
+  const [dataBarang, setDataBarang] = useState([]);
 
   useEffect(() => {
     ModalLoadingUtil.showModal();
-    fetch(linkGetBarang, {
-        method: "POST",
-        body: JSON.stringify({
-            page: 1,
-            rows: 20
-        })
-    })
-    .then(r => r.json())
-    .then(result => {
+    barangService.getBarangMasuk(1, 20)
+      .then(result => {
         if (result.responseCode === '00') {
-            console.log("INQUIRY DATA Barang:", result?.data);
-            setDataBarang(result?.data?.data);
+          console.log("INQUIRY DATA Barang:", result?.data);
+          setDataBarang(result?.data?.data || []);
         } else {
-            alert(result.responseMessage);
+          alert(result.responseMessage);
         }
-    })
-    .catch(err => {
+      })
+      .catch(err => {
         console.error(err);
-        alert('Gagal memuat jenis barang.');
-    })
-    .finally(() => {
+        alert('Gagal memuat barang.');
+      })
+      .finally(() => {
         ModalLoadingUtil.hideModal();
-    });
+      });
   },[]);
-
-  const convertDriveImage = (url) => {
-    if (!url) return "https://via.placeholder.com/300x200?text=Produk";
-
-    const match = url.match(/[-\w]{25,}/);
-    if (!match) return url;
-
-    const fileId = match[0];
-
-    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-  };
 
   const formatHarga = (harga) => {
     return `Rp. ${parseInt(harga || 0).toLocaleString('id-ID')}`;

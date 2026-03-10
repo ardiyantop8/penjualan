@@ -6,6 +6,8 @@ import { useRouter } from 'next/router';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import Link from "next/link";
 import { ModalLoadingUtil } from "@/helpers/ModalLoadingUtil";
+import { ModalSuccessUtil } from "@/helpers/ModalSuccessUtil";
+import { ModalErrorUtil } from "@/helpers/ModalErrorUtil";
 
 const TemplateKanan = ({showPassword, setShowPassword}) => {
     const setUser = useSessionStore(state => state.setUser);
@@ -36,15 +38,17 @@ const TemplateKanan = ({showPassword, setShowPassword}) => {
         ModalLoadingUtil.hideModal();
 
         if(result.responseCode === "00") {
-            // alert('Login berhasil!');
             setUser(result.data);
+            ModalSuccessUtil.showModal('Berhasil login');
             if (result?.data?.role == "admin") {
                 router.push('/home/homeAdmin');
             } else {
                 router.push('/home/homeKonsumen')
             }
         } else {
-            alert(result.responseMessage);
+            ModalErrorUtil.showModal(result?.responseMessage ?? "Ada kesalahan saat menyimpan data", () => {
+                console.log("User clicked OK");
+            });
         }
     };
 

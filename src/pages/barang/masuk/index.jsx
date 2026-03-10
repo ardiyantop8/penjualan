@@ -8,11 +8,14 @@ import DataTableSubHeader from '@/components/molecules/table/data-table-sub-head
 import { useRouter } from 'next/router';
 import { ModalLoadingUtil } from "@/helpers/ModalLoadingUtil";
 import { ModalSuccessUtil } from "@/helpers/ModalSuccessUtil";
+import barangService from '@/services/barangService';
+import { convertDriveImage } from "@/utils/imageHelper";
 
 const BarangMasuk = () => {
-    const [dataNew, setDataNew] = useState([]);
     const router = useRouter();
     const [openModalJenis, setOpenModalJenis] = useState(false);
+    const [openModalDetail, setOpenModalDetail] = useState(false);
+    const [dataDetail, setDataDetail] = useState(null);
     const [formJenis, setFormJenis] = useState({
         namaJenis: '',
         deskripsi: '',
@@ -26,13 +29,22 @@ const BarangMasuk = () => {
     const addJenisBarang = () => {
         setOpenModalJenis(true);
     }
+
+    const handleDetail = (data) => {
+        setDataDetail(data);
+        setOpenModalDetail(true);
+    }
+
+    const handleCloseModalDetail = () => {
+        setOpenModalDetail(false);
+    }
     
     const handleCloseModal = () => {
         setOpenModalJenis(false);
         setFormJenis({
             namaJenis: '',
-            deskripsi: '',
-            keterangan: ''
+            namaBranch: '',
+            aksesoris: ''
         });
     }
     
@@ -45,40 +57,32 @@ const BarangMasuk = () => {
     }
     
     const handleSaveJenis = async () => {
-        const linkCreateJenis = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=createJenisBarang"
         if (!formJenis.namaJenis.trim()) {
             alert('Nama Jenis tidak boleh kosong');
             return;
         }
         ModalLoadingUtil.showModal();
-        fetch(linkCreateJenis, {
-            method: "POST",
-            body: JSON.stringify({
-                namaJenis: formJenis.namaJenis,
-                namaBranch: formJenis.namaBranch,
-                aksesoris: formJenis.aksesoris
-            })
-        })
-        .then(r => r.json())
-        .then(result => {
+        try {
+            const result = await barangService.createJenisBarang(
+                formJenis.namaJenis,
+                formJenis.namaBranch,
+                formJenis.aksesoris
+            );
+            
             if (result.responseCode === '00') {
                 ModalSuccessUtil.showModal('Berhasil menambahkan jenis barang');
                 handleCloseModal();
             } else {
                 alert(result.responseMessage);
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.error(err);
-            alert('Gagal memuat jenis barang.');
-        })
-        .finally(() => {
+            alert('Gagal menambahkan jenis barang.');
+        } finally {
             ModalLoadingUtil.hideModal();
-        });
+        }
     }
     const [dataAPI, setDataAPI] = useState([]);
-    const [optionJenis, setOptionJenis] = useState([]);
-    const [loadingJenis, setLoadingJenis] = useState(false);
     const [filterData, setFilterData] = useState({
         pagination: {
             page: 1,
@@ -96,13 +100,13 @@ const BarangMasuk = () => {
         { label: 'Harga Modal', rowspan: 2, align: 'left', width: 140 },
         { label: 'Harga Jual', rowspan: 2, align: 'left', width: 140 },
         { label: 'Link URL', rowspan: 2, align: 'left', width: 140 },
-        
+        { label: 'Aksi', rowspan: 2, align: 'center', width: 100 },
     ];
 
-    const columnsSub =  [
-        { label: 'Rencana', width: 120 }, { label: 'Selesai', width: 120 }, { label: 'Batal', width: 120 },
-        { label: 'Debitur', width: 120 }, { label: 'Outstanding (Rp)', width: 190 },
-    ];
+    // const columnsSub =  [
+    //     { label: 'Rencana', width: 120 }, { label: 'Selesai', width: 120 }, { label: 'Batal', width: 120 },
+    //     { label: 'Debitur', width: 120 }, { label: 'Outstanding (Rp)', width: 190 },
+    // ];
 
     const handlePageChange = (value) => {
         setFilterData({
@@ -125,68 +129,26 @@ const BarangMasuk = () => {
         });
     };
 
-    const linkGetBarang = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=inquiryBarangMasukSort"
-
-    // useEffect(() => {
-    //         ModalLoadingUtil.showModal();
-    //         fetch(linkGetJenisBarang, {
-    //             method: "POST",
-    //             body: JSON.stringify({
-    //                 page: 1,
-    //                 rows: 20
-    //             })
-    //         })
-    //         .then(r => r.json())
-    //         .then(result => {
-    //             if (result.responseCode === '00') {
-    //                 setDataAPI(result.data.data.map(item => ({
-    //                     label: item.namajenis,
-    //                     value: item.idjenis
-    //                 })));
-    //             } else {
-    //                 alert(result.responseMessage);
-    //             }
-    //         })
-    //         .catch(err => {
-    //             console.error(err);
-    //             alert('Gagal memuat jenis barang.');
-    //         })
-    //         .finally(() => {
-    //             setLoadingJenis(false);
-    //             ModalLoadingUtil.hideModal();
-    //         });
-    //     },[]);
-
     useEffect(() => {
         ModalLoadingUtil.showModal();
-        fetch(linkGetBarang, {
-            method: "POST",
-            body: JSON.stringify({
-                page: 1,
-                rows: 10
-            })
-        })
-        .then(r => r.json())
+        barangService.getBarangMasuk(1, 10)
         .then(result => {
             if (result.responseCode === '00') {
                 console.log("result:", result);
                 setDataAPI(result.data);
-                // setDataAPI(result.data.data.map(item => ({
-                //     label: item.namajenis,
-                //     value: item.idjenis
-                // })));
             } else {
                 alert(result.responseMessage);
             }
         })
         .catch(err => {
             console.error(err);
-            alert('Gagal memuat jenis barang.');
+            alert('Gagal memuat barang masuk.');
         })
         .finally(() => {
             ModalLoadingUtil.hideModal();
         });
     },[]);
+
     return (
         <>
             <Card className="p-4 border border-gray-300">
@@ -250,7 +212,7 @@ const BarangMasuk = () => {
                                                 minWidth: columnWidths[0],
                                             }}
                                         >
-                                            {row.idMasuk + '.'}
+                                            {row.idBarang + '.'}
                                         </TableCell>
                                         <TableCell 
                                             sx={{
@@ -311,6 +273,27 @@ const BarangMasuk = () => {
                                             }}
                                         >
                                             {row?.gambarUrl ?? '-'}
+                                        </TableCell>
+                                        <TableCell 
+                                            sx={{
+                                                borderLeft: '2px solid #E0E0E0',
+                                                borderRight: '2px solid #E0E0E0',
+                                                minWidth: 100,
+                                            }}
+                                            align="center"
+                                        >
+                                            <ButtonDefault
+                                                sx={{
+                                                    padding: '4px 12px',
+                                                    fontSize: '12px',
+                                                    borderColor: "#ED6E12"
+                                                }}
+                                                model="outline"
+                                                color="#ED6E12"
+                                                onClick={() => handleDetail(row?.idBarang)}
+                                            >
+                                                Detail
+                                            </ButtonDefault>
                                         </TableCell>
                                     </TableRow>
                                 )}
@@ -411,6 +394,41 @@ const BarangMasuk = () => {
                     </ButtonDefault>
                 </DialogActions>
             </Dialog>
+
+            {/* Modal Detail Barang */}
+            {dataDetail && (
+                <Dialog open={openModalDetail} onClose={handleCloseModalDetail} maxWidth="sm" fullWidth>
+                    <DialogTitle>Detail Barang</DialogTitle>
+                    <DialogContent sx={{ pt: 2 }}>
+                        <div className="bg-white rounded-lg shadow hover:shadow-lg transition">
+                            <img 
+                                src={convertDriveImage(dataAPI?.data[dataDetail - 1]?.gambarUrl)} 
+                                alt={dataAPI.data[dataDetail - 1]?.namaBarang} 
+                                className="rounded-t-lg w-full object-cover bg-gray-200"
+                            />
+                        </div>
+                        <h1 className="py-4">{dataAPI.data[dataDetail - 1]?.namaBarang}</h1>
+                    </DialogContent>
+                    <DialogActions sx={{ p: 2 }}>
+                        <ButtonDefault
+                            model="outline"
+                            color="#ED6E12"
+                            onClick={handleCloseModalDetail}
+                            sx={{ padding: '6px 24px' }}
+                        >
+                            Batal
+                        </ButtonDefault>
+                        <ButtonDefault
+                            model="fill"
+                            color="#ED6E12"
+                            onClick={handleSaveJenis}
+                            sx={{ padding: '6px 24px' }}
+                        >
+                            Simpan
+                        </ButtonDefault>
+                    </DialogActions>
+                </Dialog>
+            )}
         </>
     )
 }

@@ -6,6 +6,8 @@ import LoadingModal from "@/components/organisms/modals/LoadingModal"
 import { ModalLoadingUtil } from "@/helpers/ModalLoadingUtil"
 import SuccessModal from "@/components/organisms/modals/SuccessModal"
 import { ModalSuccessUtil } from "@/helpers/ModalSuccessUtil"
+import ErrorModal from "@/components/organisms/modals/ErrorModal"
+import { ModalErrorUtil } from "@/helpers/ModalErrorUtil"
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import "react-date-range/dist/styles.css";
@@ -16,14 +18,12 @@ export default function App({ Component, pageProps, router }) {
   config.autoAddCss = false;
   const loadingRef = useRef(null);
   const successRef = useRef(null);
-
-  useEffect(() => {
-    ModalLoadingUtil.setModalRef(loadingRef);
-  }, []);
+  const errorRef = useRef(null);
 
   useEffect(() => {
     ModalLoadingUtil.setModalRef(loadingRef);
     ModalSuccessUtil.setModalRef(successRef);
+    ModalErrorUtil.setModalRef(errorRef);
   }, []);
   
   // halaman tanpa layout (misal login dan register)
@@ -68,6 +68,7 @@ export default function App({ Component, pageProps, router }) {
       {content}
       <LoadingModal ref={loadingRef} />
       <SuccessModal ref={successRef} />
+      <ErrorModal ref={errorRef} />
     </>
   )
 }

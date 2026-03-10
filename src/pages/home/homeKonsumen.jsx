@@ -3,12 +3,13 @@ import { useRouter } from "next/router";
 import useSessionStore from '@/stores/useSessionStore';
 import { ModalLoadingUtil } from "@/helpers/ModalLoadingUtil";
 import { ModalSuccessUtil } from "@/helpers/ModalSuccessUtil";
+import { convertDriveImage } from "@/utils/imageHelper";
+import barangService from '@/services/barangService';
 
 const homeKonsumen = () => {
     const user = useSessionStore(state => state.user);
     const router = useRouter();
     const [dataBarang, setDataBarang] = useState([]);
-    const linkGetBarang = "https://script.google.com/macros/s/AKfycbygxgxShdjdNEgT5Cn9ruPyTDGU1dw8v2WLJPGmFgk3MeLvBj6ivhkjBlBZJy285SxD/exec?action=inquiryBarangMasukSort"
 
     const handleLogout = () => {
         useSessionStore.persist.clearStorage(); // hapus localStorage
@@ -17,41 +18,24 @@ const homeKonsumen = () => {
 
     useEffect(() => {
         ModalLoadingUtil.showModal();
-        fetch(linkGetBarang, {
-            method: "POST",
-            body: JSON.stringify({
-                page: 1,
-                rows: 20
+        barangService.getBarangMasuk(1, 20)
+            .then(result => {
+                if (result.responseCode === '00') {
+                    console.log("Data Barang:", result?.data);
+                    setDataBarang(result?.data?.data || []);
+                } else {
+                    alert(result.responseMessage);
+                }
             })
-        })
-        .then(r => r.json())
-        .then(result => {
-            if (result.responseCode === '00') {
-                console.log("Data Barang:", result?.data);
-                setDataBarang(result?.data?.data);
-            } else {
-                alert(result.responseMessage);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Gagal memuat jenis barang.');
-        })
-        .finally(() => {
-            ModalLoadingUtil.hideModal();
-        });
+            .catch(err => {
+                console.error(err);
+                alert('Gagal memuat barang.');
+            })
+            .finally(() => {
+                ModalLoadingUtil.hideModal();
+            });
     },[]);
 
-    const convertDriveImage = (url) => {
-        if (!url) return "https://via.placeholder.com/300x200?text=Produk";
-
-        const match = url.match(/[-\w]{25,}/);
-        if (!match) return url;
-
-        const fileId = match[0];
-
-        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-    };
 
     return (
         <div className="min-h-screen bg-gray-50">
