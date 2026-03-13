@@ -136,8 +136,6 @@ const BarangMasuk = () => {
             if (result.responseCode === '00') {
                 console.log("result:", result);
                 setDataAPI(result.data);
-            } else {
-                alert(result.responseMessage);
             }
         })
         .catch(err => {
@@ -402,7 +400,8 @@ const BarangMasuk = () => {
                     <DialogContent sx={{ pt: 2 }}>
                         <div className="bg-white rounded-lg shadow hover:shadow-lg transition">
                             <img 
-                                src={convertDriveImage(dataAPI?.data[dataDetail - 1]?.gambarUrl)} 
+                                // src={convertDriveImage(dataAPI?.data[dataDetail - 1]?.gambarUrl)} 
+                                src={dataAPI?.data[dataDetail - 1]?.gambarUrl} 
                                 alt={dataAPI.data[dataDetail - 1]?.namaBarang} 
                                 className="rounded-t-lg w-full object-cover bg-gray-200"
                             />

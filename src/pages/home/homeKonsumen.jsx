@@ -56,11 +56,11 @@ const homeKonsumen = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
                 {dataBarang.map((product) => {
-                    console.log("DATA",convertDriveImage(product?.gambarUrl));
                     return(
                         <div key={product?.idMasuk} className="bg-white rounded-lg shadow hover:shadow-lg transition">
                         <img 
-                            src={convertDriveImage(product?.gambarUrl)} 
+                            // src={convertDriveImage(product?.gambarUrl)} 
+                            src={product?.gambarUrl} 
                             alt={product.namaBarang} 
                             className="rounded-t-lg w-full h-48 object-cover bg-gray-200"
                         />

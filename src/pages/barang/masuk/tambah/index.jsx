@@ -11,6 +11,8 @@ import { useForm } from "react-hook-form";
 import SaveIcon from '@mui/icons-material/Save';
 import { ModalLoadingUtil } from "@/helpers/ModalLoadingUtil";
 import { ModalSuccessUtil } from "@/helpers/ModalSuccessUtil";
+import { TextFieldDefault } from "@/components/molecules/text_fields/default";
+import { ModalErrorUtil } from "@/helpers/ModalErrorUtil";
 
 const AddBarangMasuk = () => {
     const [file, setFile] = useState(null)
@@ -100,6 +102,18 @@ const AddBarangMasuk = () => {
                     },
                 ],
             },
+            {
+                name: "detail",
+                getValue: function () {
+                    return null;
+                },
+                validationType: "string",
+                validations: [
+                    {
+                        type: "required",
+                    },
+                ],
+            },
         ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -136,9 +150,9 @@ const AddBarangMasuk = () => {
             let fileName = null;
 
             if (file) {
-            base64Image = await toBase64(file);
-            mimeType = file.type;
-            fileName = file.name;
+                base64Image = await toBase64(file);
+                mimeType = file.type;
+                fileName = file.name;
             }
 
             const res = await fetch(linkCreateBarang, {
@@ -155,7 +169,8 @@ const AddBarangMasuk = () => {
                     status: "aktif",
                     imageBase64: base64Image,
                     mimeType: mimeType,
-                    fileName: fileName
+                    fileName: fileName,
+                    detail: data.detail
                 })
             });
 
@@ -164,7 +179,6 @@ const AddBarangMasuk = () => {
                 ModalSuccessUtil.showModal(result?.responseMessage ? result.responseMessage : "Barang berhasil ditambahkan!", () => {
                     router.push('/barang/masuk');
                 });
-                // alert('Barang berhasil ditambahkan!');
                 router.push('/barang/masuk');
             } else {
                 alert(result.responseMessage);
@@ -174,6 +188,49 @@ const AddBarangMasuk = () => {
             console.error(err);
         }
         ModalLoadingUtil.hideModal();
+
+        // try {
+        //     ModalLoadingUtil.showModal();
+        //     let base64Image = null;
+        //     let mimeType = null;
+        //     let fileName = null;
+        //     if (file) {
+        //         base64Image = await toBase64(file);
+        //         mimeType = file.type;
+        //         fileName = file.name;
+        //     }
+        //     const payload = {
+        //         namaBarang: formData.namaBarang,
+        //         idJenis: formData.jenisBarang.value,
+        //         hargaModal: formData.hargaModal,
+        //         hargaJual: formData.hargaJual,
+        //         size: formData.size,
+        //         rangeUsia: formData.rangeUsia,
+        //         stok: formData.jmlhStok,
+        //         status: "aktif",
+        //         imageBase64: base64Image,
+        //         mimeType: mimeType,
+        //         fileName: fileName,
+        //         detail:formData.detail
+        //     };
+        //     const result = await barangService.createBarang(payload);
+        //     if (result.responseCode !== "00") {
+        //         ModalLoadingUtil.hideModal();
+        //         ModalSuccessUtil.showModal(
+        //             result?.responseMessage || "Barang berhasil ditambahkan!",
+        //             () => {
+        //                 router.push("/barang/masuk");
+        //             }
+        //         );
+        //         return;
+        //     } else {
+        //         ModalLoadingUtil.hideModal();
+        //         ModalErrorUtil.showModal(result.responseMessage || "Gagal menambahkan barang.", () => {});
+        //     }
+        // } catch (err) {
+        //     ModalLoadingUtil.hideModal();
+        //     ModalErrorUtil.showModal(err ?? "Gagal memuat barang.");
+        // }
     };
 
     useEffect(() => {
@@ -363,6 +420,24 @@ const AddBarangMasuk = () => {
                                             </div>
                                         </div>
                                     )}
+                                </div>
+                            ),
+                        },
+                        {
+                            type: FORM_TYPE.CUSTOM,
+                            component: (
+                                <div className="col-span-3 py-3">
+                                    <TextFieldDefault
+                                        className="w-full"
+                                        name="detail"
+                                        control={control}
+                                        placeholder="Masukan detail produk"
+                                        title="Detail Produk"
+                                        maxLength="200"
+                                        showCountHelper={true}
+                                        multiline={true}
+                                        rows="3"
+                                    />
                                 </div>
                             ),
                         },

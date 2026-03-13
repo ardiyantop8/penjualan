@@ -13,9 +13,9 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 
-
 export default function App({ Component, pageProps, router }) {
   config.autoAddCss = false;
+
   const loadingRef = useRef(null);
   const successRef = useRef(null);
   const errorRef = useRef(null);
@@ -25,8 +25,7 @@ export default function App({ Component, pageProps, router }) {
     ModalSuccessUtil.setModalRef(successRef);
     ModalErrorUtil.setModalRef(errorRef);
   }, []);
-  
-  // halaman tanpa layout (misal login dan register)
+
   const noLayoutRoutes = [
     '/login/login',
     '/register/register',
@@ -34,19 +33,27 @@ export default function App({ Component, pageProps, router }) {
     '/404',
   ];
 
-  // konsumen routes pake KonsumenLayout
-  const konsumenRoutes = ['/home/homeKonsumen', '/produk', '/status', '/profil/profilKonsumen', '/keranjang']; // prefix untuk halaman produk
+  const konsumenRoutes = [
+    '/home/homeKonsumen',
+    '/produk',
+    '/status',
+    '/profil/profilKonsumen',
+    '/keranjang'
+  ];
 
   let content;
+
   if (noLayoutRoutes.includes(router.pathname)) {
     content = <Component {...pageProps} />
-  }  else if (konsumenRoutes.some(path => router.pathname.startsWith(path))) {
+  } 
+  else if (konsumenRoutes.some(path => router.pathname.startsWith(path))) {
     content = (
       <KonsumenLayout>
         <Component {...pageProps} />
       </KonsumenLayout>
     )
-  } else {
+  } 
+  else {
     content = (
       <HomeLayout>
         <Component {...pageProps} />
@@ -54,21 +61,13 @@ export default function App({ Component, pageProps, router }) {
     )
   }
 
-  if (konsumenRoutes.some(path => router.pathname.startsWith(path))) {
-    return (
-      <KonsumenLayout>
-        <Component {...pageProps} />
-      </KonsumenLayout>
-    )
-  }
-
-  // default: admin layout
   return (
     <>
       {content}
+
       <LoadingModal ref={loadingRef} />
       <SuccessModal ref={successRef} />
       <ErrorModal ref={errorRef} />
     </>
-  )
+  );
 }

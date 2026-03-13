@@ -68,9 +68,9 @@ export const barangService = {
         const res = await fetch(`${BASE_URL}?action=createJenisBarang`, {
             method: "POST",
             body: JSON.stringify({
-            namaJenis,
-            namaBranch,
-            aksesoris
+                namaJenis,
+                namaBranch,
+                aksesoris
             })
         });
         return await res.json();
@@ -92,8 +92,8 @@ export const barangService = {
         });
         return await res.json();
         } catch (error) {
-        console.error('Error updating barang:', error);
-        throw error;
+            console.error('Error updating barang:', error);
+            throw error;
         }
     },
 
@@ -106,10 +106,44 @@ export const barangService = {
         });
         return await res.json();
         } catch (error) {
-        console.error('Error deleting barang:', error);
-        throw error;
+            console.error('Error deleting barang:', error);
+            throw error;
         }
-    }
+    },
+
+    // Inquiry detail barang
+    getDetailBarang: async (id) => {
+        try {
+        const res = await fetch(`${BASE_URL}?action=inquiryDetailBarang`, {
+            method: "POST",
+            body: JSON.stringify({ id })
+        });
+        return await res.json();
+        } catch (error) {
+            console.error('Error fetching detail barang:', error);
+            throw error;
+        }
+    },
+
+    // Inquiry detail barang
+    addCart: async (idAnggota, idBarang, totalBarang, tglUpdated, status) => {
+        try {
+        const res = await fetch(`${BASE_URL}?action=createKeranjang`, {
+            method: "POST",
+            body: JSON.stringify({
+                idAnggota,
+                idBarang,
+                totalBarang,
+                tglUpdated,
+                status
+            })
+        });
+        return await res.json();
+        } catch (error) {
+            console.error('Error fetching db keranjang:', error);
+            throw error;
+        }
+    },
 };
 
 export default barangService;
