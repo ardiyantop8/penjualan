@@ -40,7 +40,7 @@ const TemplateKanan = ({showPassword, setShowPassword}) => {
         if(result.responseCode === "00") {
             setUser(result.data);
             ModalSuccessUtil.showModal('Berhasil login');
-            if (result?.data?.role == "admin") {
+            if (result?.data?.role && ['admin', 'superadmin', 'kasir'].includes(result?.data?.role)) {
                 router.push('/home/homeAdmin');
             } else {
                 router.push('/home/homeKonsumen')

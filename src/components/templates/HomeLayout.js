@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import useSessionStore from '@/stores/useSessionStore';
 import { useRouter } from "next/router";
-import Button from '@mui/material/Button';
-import { fetchMenu, fetchMenuById } from "@/services/menuService";
+import barangService from '@/services/barangService';
+import { ModalLoadingUtil } from "@/helpers/ModalLoadingUtil";
+import { ModalErrorUtil } from "@/helpers/ModalErrorUtil";
 
 export default function HomeLayout({ children }) {
     const router = useRouter();
@@ -26,63 +27,97 @@ export default function HomeLayout({ children }) {
     useEffect(() => {
         if (!user?.idanggota) return;
 
-        const proxyUrl = "/api/proxy";
+        // const proxyUrl = "/api/proxy";
+
+        // const loadMenu = async () => {
+        //     setLoadingMenu(true);
+        //     setErrorMenu(null);
+
+        //     try {
+        //         // 1️⃣ fetch aksesMenu
+        //         const aksesResRaw = await fetch(proxyUrl, {
+        //             method: "POST",
+        //             headers: { "Content-Type": "application/json" },
+        //             body: JSON.stringify({
+        //                 action: "aksesmenu",
+        //                 body: { idanggota: user.idanggota },
+        //             }),
+        //         });
+        //         const aksesRes = await aksesResRaw.json();
+        //         console.log("AksesMenu Res:", aksesRes);
+        //         if (!aksesRes?.data?.dataId) {
+        //             throw new Error("Tidak ada data akses menu");
+        //         }
+
+        //         // ambil array idmenu
+        //         const idmenuArray = aksesRes?.data?.dataId.map(item => item.idmenu);
+
+        //         if (idmenuArray.length === 0) {
+        //             setMenuItems([]);
+        //             return;
+        //         }
+
+        //         // 2️⃣ fetch menuById
+        //         const menuResRaw = await fetch(proxyUrl, {
+        //             method: "POST",
+        //             headers: { "Content-Type": "application/json" },
+        //             body: JSON.stringify({
+        //                 action: "inquirymenuid",
+        //                 body: { idmenu: idmenuArray },
+        //             }),
+        //         });
+        //         const menuRes = await menuResRaw.json();
+        //         console.log("MenuById Res:", menuRes);
+        //         if (menuRes?.responseCode === "00") {
+        //             // console.log("RESDD:",menuRes);
+        //             setMenuItems(menuRes?.data?.data || []);
+        //         } else {
+        //             throw new Error(menuRes?.message || "Gagal fetch menu");
+        //         }
+
+        //     } catch (err) {
+        //         console.error("loadMenu error", err);
+        //         setErrorMenu(err.message || "Terjadi kesalahan");
+        //         setMenuItems([]);
+        //     } finally {
+        //         setLoadingMenu(false);
+        //     }
+        // };
 
         const loadMenu = async () => {
-        setLoadingMenu(true);
-        setErrorMenu(null);
+            ModalLoadingUtil.showModal();
+            setLoadingMenu(true);
+            setErrorMenu(null);
+            try {
+                const aksesRes = await barangService.getAksesMenu(user.idanggota);
+                if (!aksesRes?.data?.dataId) {
+                    throw new Error("Tidak ada data akses menu");
+                }
+                const idmenuArray = aksesRes?.data?.dataId.map(item => item.idmenu);
+                if (idmenuArray.length === 0) {
+                    setMenuItems([]);
+                    return;
+                }
+                const menuRes = await barangService.getMenuById(idmenuArray);
+                if (menuRes?.responseCode === "00") {
+                    setMenuItems(menuRes?.data?.data || []);
+                } else {
+                    throw new Error(menuRes?.message || "Gagal fetch menu");
+                }
 
-        try {
-            // 1️⃣ fetch aksesMenu
-            const aksesResRaw = await fetch(proxyUrl, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    action: "aksesmenu",
-                    body: { idanggota: user.idanggota },
-                }),
-            });
-            const aksesRes = await aksesResRaw.json();
-            console.log("AksesMenu Res:", aksesRes);
-            if (!aksesRes?.data?.dataId) {
-                throw new Error("Tidak ada data akses menu");
+            } catch (err) {
+                // console.error("loadMenu error", err);
+                // setErrorMenu(err.message || "Terjadi kesalahan");
+                ModalErrorUtil.showModal(err.message ?? "Terjadi kesalahan", () => {
+                    // console.log("User clicked OK");
+                });
+                handleLogout();
+            } finally {
+                setLoadingMenu(false);
+                ModalLoadingUtil.hideModal();
             }
 
-            // ambil array idmenu
-            const idmenuArray = aksesRes?.data?.dataId.map(item => item.idmenu);
-
-            if (idmenuArray.length === 0) {
-                setMenuItems([]);
-                return;
-            }
-
-            // 2️⃣ fetch menuById
-            const menuResRaw = await fetch(proxyUrl, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    action: "inquirymenuid",
-                    body: { idmenu: idmenuArray },
-                }),
-            });
-            const menuRes = await menuResRaw.json();
-            console.log("MenuById Res:", menuRes);
-            if (menuRes?.responseCode === "00") {
-                // console.log("RESDD:",menuRes);
-                setMenuItems(menuRes?.data?.data || []);
-            } else {
-                throw new Error(menuRes?.message || "Gagal fetch menu");
-            }
-
-        } catch (err) {
-            console.error("loadMenu error", err);
-            setErrorMenu(err.message || "Terjadi kesalahan");
-            setMenuItems([]);
-        } finally {
-            setLoadingMenu(false);
-        }
         };
-
         loadMenu();
     }, [user?.idanggota]);
 

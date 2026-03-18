@@ -144,6 +144,28 @@ export const barangService = {
             throw error;
         }
     },
+
+    getAksesMenu: async (idanggota) => {
+        const res = await fetch(`${BASE_URL}?action=aksesmenu`, {
+        method: "POST",
+        body: JSON.stringify({
+            idanggota
+        })
+        });
+
+        return await res.json();
+    },
+
+    getMenuById: async (idmenuArray) => {
+        const res = await fetch(`${BASE_URL}?action=inquirymenuid`, {
+        method: "POST",
+        body: JSON.stringify({
+            idmenu: idmenuArray
+        })
+        });
+
+        return await res.json();
+    }
 };
 
 export default barangService;
